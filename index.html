@@ -3,61 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NSE ETF UI Dashboard</title>
+    <title>NSE ETF Premium Workspace</title>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #212529; margin: 30px; }
-        .container { max-width: 1200px; margin: auto; }
-        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 20px solid transparent; }
-        .controls { text-align: right; }
-        .btn { background: #2b6cb0; color: white; padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: background 0.2s; }
-        .btn:hover { background: #1a4373; }
-        .btn:disabled { background: #cbd5e0; cursor: not-allowed; }
-        .status-badge { display: inline-block; margin-top: 6px; padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
-        .status-cache { background: #feebc8; color: #c05621; }
-        .status-fresh { background: #c6f6d5; color: #22543d; }
-        .status-loading { background: #e2e8f0; color: #4a5568; }
-        .status-error { background: #fed7d7; color: #9b2c2c; }
-        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-top: 15px; }
-        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #e2e8f0; }
-        th { background-color: #edf2f7; font-weight: 600; color: #4a5568; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
-        tr:hover { background-color: #f7fafc; }
-        .positive { color: #38a169; font-weight: 600; }
-        .negative { color: #e53e3e; font-weight: 600; }
-        .text-muted { color: #718096; font-size: 0.85em; }
+        :root {
+            --bg-main: #f1f5f9;
+            --bg-card: #ffffff;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --primary: #475569;
+            --primary-hover: #0f172a;
+            --border-color: #cbd5e1;
+            --row-hover: #f8fafc;
+            --pos-green: #0f766e; /* Deep emerald corporate green */
+            --neg-red: #be123c;   /* Refined crimson wine red */
+            --badge-bg: #e2e8f0;
+        }
+
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; 
+            background-color: var(--bg-main); 
+            color: var(--text-main); 
+            margin: 0;
+            padding: 12px 20px; /* Minimal header padding constraint */
+            -webkit-font-smoothing: antialiased;
+        }
+        
+        .container { max-width: 1340px; margin: auto; }
+        
+        /* Ultra-Compact Top Section Header Block */
+        .header { 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 4px 0 10px 0;
+            margin-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+        
+        .title-area { display: flex; align-items: baseline; gap: 14px; }
+        h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.3px; color: var(--primary-hover); margin: 0; }
+        .text-muted { color: var(--text-muted); font-size: 0.8rem; font-weight: 400; }
+        
+        .controls { display: flex; align-items: center; gap: 10px; }
+        .btn-group { display: flex; gap: 4px; }
+        
+        /* Modern Minimalist Buttons */
+        .btn { 
+            background-color: var(--primary); 
+            color: white; 
+            padding: 5px 12px; 
+            border: 1px solid transparent;
+            border-radius: 4px; 
+            cursor: pointer; 
+            font-weight: 500; 
+            font-size: 0.8rem; 
+            transition: all 0.15s ease;
+        }
+        .btn:hover { background-color: var(--primary-hover); }
+        .btn-outline { background-color: var(--bg-card); color: var(--primary); border: 1px solid var(--border-color); }
+        .btn-outline:hover { background-color: var(--row-hover); border-color: var(--primary); }
+        .btn:disabled { background-color: #cbd5e1; color: #94a3b8; cursor: not-allowed; }
+        
+        .status-badge { font-size: 0.725rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.2px; }
+        .status-cache { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
+        .status-fresh { background: #ccfbf1; color: #115e59; border: 1px solid #99f6e4; }
+        .status-loading { background: var(--badge-bg); color: var(--text-muted); }
+        .status-error { background: #ffe4e6; color: #9f1239; }
+        
+        /* Premium Data Matrix Views */
+        .table-container { background: var(--bg-card); border-radius: 6px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th, td { padding: 10px 14px; border-bottom: 1px solid #e2e8f0; font-size: 0.85rem; }
+        
+        th { 
+            background-color: #f1f5f9; 
+            font-weight: 600; 
+            color: #475569; 
+            text-transform: uppercase; 
+            font-size: 0.7rem; 
+            letter-spacing: 0.5px; 
+            cursor: pointer; 
+            user-select: none;
+            border-bottom: 2px solid var(--border-color);
+        }
+        th:hover { color: var(--primary-hover); background-color: #e2e8f0; }
+        th::after { content: " ↕"; font-size: 0.7rem; color: #94a3b8; opacity: 0.5; margin-left: 2px; }
+        th.sort-asc::after { content: " ▲"; color: var(--primary-hover); opacity: 1; }
+        th.sort-desc::after { content: " ▼"; color: var(--primary-hover); opacity: 1; }
+        
+        .parent-row { background-color: var(--bg-card); cursor: pointer; font-weight: 500; }
+        .parent-row:hover { background-color: var(--row-hover); }
+        
+        .child-row { background-color: #f8fafc; display: none; }
+        .child-row td { padding: 8px 14px; font-size: 0.8rem; color: #475569; border-bottom: 1px solid #f1f5f9; }
+        .child-row:hover { background-color: #f1f5f9; }
+        
+        .positive { color: var(--pos-green); font-weight: 600; }
+        .negative { color: var(--neg-red); font-weight: 600; }
+        .symbol-txt { font-weight: 600; color: #0f172a; }
+        .badge-count { background-color: #f1f5f9; color: #475569; font-size: 0.725rem; font-weight: 500; padding: 1px 6px; border-radius: 4px; border: 1px solid #e2e8f0; margin-left: 6px; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <div class="header">
-        <div>
-            <h1 style="margin: 0 0 5px 0; font-size: 1.75rem;">NSE ETF UI Tracker</h1>
-            <div id="timestamp-text" class="text-muted">Awaiting layout initialization...</div>
+        <div class="title-area">
+            <h1>NSE ETF Dashboard</h1>
+            <div id="timestamp-text" class="text-muted">Loading workspace context...</div>
+            <div class="btn-group">
+                <button id="expand-all-btn" class="btn btn-outline" onclick="toggleAllGroups(true)">Expand All</button>
+                <button id="collapse-all-btn" class="btn btn-outline" onclick="toggleAllGroups(false)">Collapse All</button>
+            </div>
         </div>
         <div class="controls">
-            <button id="refresh-btn" class="btn" onclick="fetchLiveETFData(true)">Manual Live Refresh</button>
-            <br>
-            <span id="status-badge" class="status-badge">Checking Cache...</span>
+            <span id="status-badge" class="status-badge status-loading">Checking...</span>
+            <button id="refresh-btn" class="btn" onclick="fetchLiveETFData(true)">Live Refresh</button>
         </div>
     </div>
 
-    <table>
-        <thead>
-            <tr>
-                <th>Symbol</th>
-                <th>LTP (₹)</th>
-                <th>Change (%)</th>
-                <th>Volume</th>
-                <th>52W High (₹)</th>
-                <th>From 52W High (%)</th>
-            </tr>
-        </thead>
-        <tbody id="table-body">
-            <tr>
-                <td colspan="6" style="text-align: center; color: #718096;">Ready to map JSON matrix schema to viewport.</td>
-            </tr>
-        </tbody>
-    </table>
+    <div class="table-container">
+        <table>
+            <thead>
+                <tr>
+                    <th id="th-symbol" onclick="handleHeaderSort('symbol')">Symbol</th>
+                    <th id="th-assets" onclick="handleHeaderSort('assets')">Asset / Underlying</th>
+                    <th id="th-ltp" onclick="handleHeaderSort('ltp')">LTP (₹)</th>
+                    <th id="th-changePct" onclick="handleHeaderSort('changePct')">Change (%)</th>
+                    <th id="th-volume" onclick="handleHeaderSort('volume')">Volume</th>
+                    <th id="th-wkhHigh" onclick="handleHeaderSort('wkhHigh')">52W High (₹)</th>
+                    <th id="th-fromWkhHighPct" onclick="handleHeaderSort('fromWkhHighPct')">From 52W High</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                <tr>
+                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">Initial connection profile processing execution tracking sequence loop...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <script>
@@ -67,6 +151,10 @@
 
     const PROXY_URL = "https://cors-anywhere.herokuapp.com/";
     const TARGET_API = "https://www.nseindia.com/api/etf";
+
+    let globalEtfData = []; 
+    let activeSortKey = 'volume'; 
+    let activeSortOrder = 'desc';
 
     async function fetchLiveETFData(forceRefresh = false) {
         const cachedData = localStorage.getItem(CACHE_KEY);
@@ -78,17 +166,19 @@
         const btn = document.getElementById('refresh-btn');
 
         if (!forceRefresh && cachedData && cachedTime && (now - cachedTime < CACHE_TIMEOUT)) {
-            badge.innerText = "LOADED FROM BROWSER CACHE";
+            badge.innerText = "Cached Snapshot";
             badge.className = "status-badge status-cache";
             const ageInSeconds = Math.round((now - cachedTime) / 1000);
-            timestampText.innerText = `Displaying cached local snapshot (${ageInSeconds}s ago)`;
-            renderUI(JSON.parse(cachedData));
+            timestampText.innerText = `Local snapshot compiled (${ageInSeconds}s ago)`;
+            
+            globalEtfData = JSON.parse(cachedData);
+            renderUI();
             return;
         }
 
-        badge.innerText = "TUNNELING TO ENDPOINT...";
+        badge.innerText = "Syncing...";
         badge.className = "status-badge status-loading";
-        timestampText.innerText = "Querying live JSON profile via proxy framework...";
+        timestampText.innerText = "Tunneling API context profiles via proxy core...";
         btn.disabled = true;
 
         try {
@@ -101,90 +191,170 @@
                 }
             });
 
-            if (!response.ok) throw new Error(`Network edge responded with code: ${response.status}`);
-            
+            if (!response.ok) throw new Error(`Status: ${response.status}`);
             const cleanPayload = await response.json();
             const etfArray = cleanPayload.data || cleanPayload;
 
-            if (!Array.isArray(etfArray)) {
-                throw new Error("Payload did not compile into an extractable array.");
-            }
+            if (!Array.isArray(etfArray)) throw new Error("Payload breakdown validation anomaly.");
 
             localStorage.setItem(CACHE_KEY, JSON.stringify(etfArray));
             localStorage.setItem(CACHE_TIME_KEY, new Date().getTime().toString());
 
-            badge.innerText = "FETCHED FRESH DATA";
+            badge.innerText = "Live Active";
             badge.className = "status-badge status-fresh";
-            timestampText.innerText = `Data Synced: ${new Date().toLocaleTimeString()}`;
+            timestampText.innerText = `Data Sync: ${new Date().toLocaleTimeString()}`;
 
-            renderUI(etfArray);
+            globalEtfData = etfArray;
+            renderUI();
         } catch (error) {
-            console.error("Pipeline breakdown tracking log:", error);
-            badge.innerText = "CONNECTION OVERLOAD / BLOCKED";
+            console.error(error);
+            badge.innerText = "Tunnel Failed";
             badge.className = "status-badge status-error";
-            timestampText.innerText = "Proxy instance rate-limited or target endpoint dropped connection.";
-            
+            timestampText.innerText = "Connection drop from target edge gateway routing rules.";
             if (cachedData) {
-                renderUI(JSON.parse(cachedData));
-            } else {
-                document.getElementById('table-body').innerHTML = `
-                    <tr>
-                        <td colspan="6" style="text-align: center; color: #9b2c2c; padding: 30px;">
-                            <strong>Data Pipeline Unreachable</strong><br>
-                            To securely route requests live directly from your local file system or GitHub Pages, 
-                            please initialize the proxy session endpoint manually.<br>
-                            <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank" class="btn" style="display:inline-block; margin-top:15px; text-decoration:none;">
-                                Click Here to Unblock Demo Proxy Access
-                            </a>
-                        </td>
-                    </tr>`;
+                globalEtfData = JSON.parse(cachedData);
+                renderUI();
             }
         } finally {
             btn.disabled = false;
         }
     }
 
-    function renderUI(etfArray) {
+    function toggleGroup(groupId, parentElement) {
+        const childRows = document.querySelectorAll(`.child-of-${groupId}`);
+        const isExpanded = parentElement.classList.contains('expanded');
+        childRows.forEach(row => row.style.display = isExpanded ? 'none' : 'table-row');
+        parentElement.classList.toggle('expanded');
+    }
+
+    // Expand All / Collapse All Routine Execution Array Mapping Loop
+    function toggleAllGroups(shouldExpand) {
+        document.querySelectorAll('.child-row').forEach(row => row.style.display = shouldExpand ? 'table-row' : 'none');
+        document.querySelectorAll('.parent-row').forEach(row => shouldExpand ? row.classList.add('expanded') : row.classList.remove('expanded'));
+    }
+
+    function handleHeaderSort(key) {
+        if (activeSortKey === key) {
+            activeSortOrder = activeSortOrder === 'asc' ? 'desc' : 'asc';
+        } else {
+            activeSortKey = key;
+            activeSortOrder = (key === 'symbol' || key === 'assets') ? 'asc' : 'desc';
+        }
+        renderUI();
+    }
+
+    function updateSortHeaderStyles() {
+        ['symbol', 'assets', 'ltp', 'changePct', 'volume', 'wkhHigh', 'fromWkhHighPct'].forEach(hKey => {
+            const el = document.getElementById(`th-${hKey}`);
+            if (el) el.className = hKey === activeSortKey ? (activeSortOrder === 'asc' ? 'sort-asc' : 'sort-desc') : '';
+        });
+    }
+
+    function cleanAndExtractGroupKey(name, symbol) {
+        if (!name) return 'OTHER/UNCLASSIFIED';
+        const checkAssetUpper = name.toUpperCase().trim();
+        const checkSymbolUpper = symbol.toUpperCase().trim();
+        
+        if (checkAssetUpper.includes('LIQUID') || checkSymbolUpper.includes('LIQUID')) return 'LIQUID';
+        if (checkAssetUpper.includes('GOLD') || checkSymbolUpper.includes('GOLD')) return 'GOLD';
+        if (checkAssetUpper.includes('SILVER') || checkSymbolUpper.includes('SILVER')) return 'SILVER';
+
+        let workingName = checkAssetUpper;
+        const anchorRegex = /.*?\b(NIFTY|BSE)\b/;
+        if (anchorRegex.test(workingName)) workingName = workingName.replace(anchorRegex, '$1');
+
+        const suffixRegex = /\s*[-\s]*(TOTAL RETURN INDEX|EXCHANGE TRADED FUND|INDEX\s*-\s*TRI|INDEX|TRI|ETF)\s*$/;
+        return workingName.replace(suffixRegex, '').trim() || checkAssetUpper;
+    }
+
+    function renderUI() {
         const tbody = document.getElementById('table-body');
         tbody.innerHTML = "";
+        updateSortHeaderStyles();
 
-        etfArray.forEach(item => {
-            const row = document.createElement('tr');
-            
-            // Core Explicit Schema Field Mapping
+        if (!globalEtfData || globalEtfData.length === 0) return;
+
+        const groupedAssets = {};
+        globalEtfData.forEach(item => {
+            const rawAssetName = item.assets || 'Other/Unclassified';
             const symbol = item.symbol || 'N/A';
+            const assignedGroupKey = cleanAndExtractGroupKey(rawAssetName, symbol);
             
-            // Using explicit fields discovered in raw JSON
+            if (!groupedAssets[assignedGroupKey]) groupedAssets[assignedGroupKey] = [];
+            
             const ltp = item.ltP ? parseFloat(item.ltP) : 0;
             const changePct = item.per ? parseFloat(item.per) : 0;
             const wkhHigh = item.wkhi ? parseFloat(item.wkhi) : 0;
-            
-            // Volume parsing metrics (checks fallback fields if necessary)
-            const rawVolume = item.volume || item.totalTradedVolume || item.qty || 0;
-            const volume = parseInt(rawVolume).toLocaleString('en-IN');
-            
-            // Calculation: Percent variance down from 52 Week High anchor limit
-            let fromWkhHighPct = 0;
-            if (wkhHigh > 0) {
-                fromWkhHighPct = ((ltp - wkhHigh) / wkhHigh) * 100;
+            const volumeInt = parseInt(item.volume || item.totalTradedVolume || item.qty || 0) || 0;
+            const fromWkhHighPct = wkhHigh > 0 ? ((ltp - wkhHigh) / wkhHigh) * 100 : 0;
+
+            groupedAssets[assignedGroupKey].push({
+                symbol: symbol, assets: rawAssetName, ltp: ltp, changePct: changePct, volume: volumeInt, wkhHigh: wkhHigh, fromWkhHighPct: fromWkhHighPct
+            });
+        });
+
+        const finalGroupBlocks = [];
+        for (const [groupKey, items] of Object.entries(groupedAssets)) {
+            items.sort((a, b) => b.volume - a.volume);
+            finalGroupBlocks.push({ groupKey: groupKey, parent: items[0], children: items.slice(1) });
+        }
+
+        finalGroupBlocks.sort((a, b) => {
+            let valA = a.parent[activeSortKey];
+            let valB = b.parent[activeSortKey];
+            return typeof valA === 'string' ? (activeSortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA)) : (activeSortOrder === 'asc' ? valA - valB : valB - valA);
+        });
+
+        let groupIndex = 0;
+        finalGroupBlocks.forEach(block => {
+            groupIndex++;
+            const highestVolumeItem = block.parent;
+            const substituteItems = block.children;
+            const hasChildren = substituteItems.length > 0;
+
+            const pRow = document.createElement('tr');
+            pRow.className = `parent-row`;
+            if (hasChildren) {
+                const currentId = groupIndex;
+                pRow.onclick = () => toggleGroup(currentId, pRow);
             }
 
-            // UI Decoration Style parameters
-            const changeClass = changePct >= 0 ? 'positive' : 'negative';
-            const changeSign = changePct >= 0 ? '+' : '';
-            
-            const wkhClass = fromWkhHighPct >= 0 ? 'positive' : 'negative';
-            const wkhSign = fromWkhHighPct >= 0 ? '+' : '';
-
-            row.innerHTML = `
-                <td><strong>${symbol}</strong></td>
-                <td>₹${ltp.toFixed(2)}</td>
-                <td class="${changeClass}">${changeSign}${changePct.toFixed(2)}%</td>
-                <td>${volume}</td>
-                <td>₹${wkhHigh.toFixed(2)}</td>
-                <td class="${wkhClass}">${wkhSign}${fromWkhHighPct.toFixed(2)}%</td>
+            pRow.innerHTML = `
+                <td><span class="symbol-txt">${highestVolumeItem.symbol}</span></td>
+                <td>
+                    <span>${highestVolumeItem.assets}</span>
+                    ${hasChildren ? `<span class="badge-count">${substituteItems.length + 1} options</span>` : ''}
+                </td>
+                <td>₹${highestVolumeItem.ltp.toFixed(2)}</td>
+                <td class="${highestVolumeItem.changePct >= 0 ? 'positive' : 'negative'}">
+                    ${highestVolumeItem.changePct >= 0 ? '+' : ''}${highestVolumeItem.changePct.toFixed(2)}%
+                </td>
+                <td>${highestVolumeItem.volume.toLocaleString('en-IN')}</td>
+                <td>₹${highestVolumeItem.wkhHigh.toFixed(2)}</td>
+                <td class="${highestVolumeItem.fromWkhHighPct >= 0 ? 'positive' : 'negative'}">
+                    ${highestVolumeItem.fromWkhHighPct >= 0 ? '+' : ''}${highestVolumeItem.fromWkhHighPct.toFixed(2)}%
+                </td>
             `;
-            tbody.appendChild(row);
+            tbody.appendChild(pRow);
+
+            substituteItems.forEach(child => {
+                const cRow = document.createElement('tr');
+                cRow.className = `child-row child-of-${groupIndex}`;
+                cRow.innerHTML = `
+                    <td><span class="symbol-txt" style="padding-left:8px; opacity: 0.85;">${child.symbol}</span></td>
+                    <td><span class="text-muted">${child.assets}</span></td>
+                    <td>₹${child.ltp.toFixed(2)}</td>
+                    <td class="${child.changePct >= 0 ? 'positive' : 'negative'}">
+                        ${child.changePct >= 0 ? '+' : ''}${child.changePct.toFixed(2)}%
+                    </td>
+                    <td>${child.volume.toLocaleString('en-IN')}</td>
+                    <td>₹${child.wkhHigh.toFixed(2)}</td>
+                    <td class="${child.fromWkhHighPct >= 0 ? 'positive' : 'negative'}">
+                        ${child.fromWkhHighPct >= 0 ? '+' : ''}${child.fromWkhHighPct.toFixed(2)}%
+                    </td>
+                `;
+                tbody.appendChild(cRow);
+            });
         });
     }
 
