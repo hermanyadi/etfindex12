@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NSE ETF Professional Dashboard</title>
+    <style>
+        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #212529; margin: 30px; }
+        .container { max-width: 1200px; margin: auto; }
+        .header { display: flex; justify-content: space-between; align-items: center; border-bottom: 20px solid transparent; }
+        .controls { text-align: right; }
+        .btn { background: #2b6cb0; color: white; padding: 10px 18px; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; font-size: 0.95rem; transition: background 0.2s; }
+        .btn:hover { background: #1a4373; }
+        .btn:disabled { background: #cbd5e0; cursor: not-allowed; }
+        .status-badge { display: inline-block; margin-top: 6px; padding: 4px 8px; border-radius: 4px; font-size: 0.85em; font-weight: bold; }
+        .status-cache { background: #feebc8; color: #c05621; }
+        .status-fresh { background: #c6f6d5; color: #22543d; }
+        .status-loading { background: #e2e8f0; color: #4a5568; }
+        .status-error { background: #fed7d7; color: #9b2c2c; }
+        table { width: 100%; border-collapse: collapse; background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); margin-top: 15px; }
+        th, td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #edf2f7; font-weight: 600; color: #4a5568; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.5px; }
+        tr:hover { background-color: #f7fafc; }
+        .positive { color: #38a169; font-weight: 600; }
+        .negative { color: #e53e3e; font-weight: 600; }
+        .text-muted { color: #718096; font-size: 0.85em; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <div>
+            <h1 style="margin: 0 0 5px 0; font-size: 1.75rem;">NSE ETF Live Matrix</h1>
+            <div id="timestamp-text" class="text-muted">Awaiting network baseline execution...</div>
+        </div>
+        <div class="controls">
+            <button id="refresh-btn" class="btn" onclick="fetchLiveETFData(true)">Manual Live Refresh</button>
+            <br>
+            <span id="status-badge" class="status-badge">Checking Cache...</span>
+        </div>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Symbol</th>
+                <th>Underlying Asset</th>
+                <th>LTP (₹)</th>
+                <th>Change (%)</th>
+                <th>Volume</th>
+                <th>52W High (₹)</th>
+                <th>% From 52W High</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            <tr>
+                <td colspan="7" style="text-align: center; color: #718096;">Ready to process proxy tunnel handshake...</td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+
+<script>
+    const CACHE_KEY = "nse_etf_live_ui_data_v2";
+    const CACHE_TIME_KEY = "nse_etf_live_ui_time_v2";
+    const CACHE_TIMEOUT = 3 * 60 * 1000; 
+
+    const PROXY_URL = "https://cors-anywhere.herokuapp.com/";
+    const TARGET_API = "https://www.nseindia.com/api/etf";
+
+    async function fetchLiveETFData(forceRefresh = false) {
+        const cachedData = localStorage.getItem(CACHE_KEY);
+        const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+        const now = new Date().getTime();
+
+        const badge = document.getElementById('status-badge');
+        const timestampText = document.getElementById('timestamp-text');
+        const btn = document.getElementById('refresh-btn');
+
+        if (!forceRefresh && cachedData && cachedTime && (now - cachedTime < CACHE_TIMEOUT)) {
+            badge.innerText = "LOADED FROM BROWSER CACHE";
+            badge.className = "status-badge status-cache";
+            const ageInSeconds = Math.round((now - cachedTime) / 1000);
+            timestampText.innerText = `Displaying cached local snapshot (${ageInSeconds}s ago)`;
+            renderUI(JSON.parse(cachedData));
+            return;
+        }
+
+        badge.innerText = "TUNNELING TO ENDPOINT...";
+        badge.className = "status-badge status-loading";
+        timestampText.innerText = "Querying live JSON profile via proxy framework...";
+        btn.disabled = true;
+
+        try {
+            const response = await fetch(`${PROXY_URL}${TARGET_API}?t=${new Date().getTime()}`, {
+                method: 'GET',
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest',
+                    'Accept': 'application/json, text/javascript, */*; q=0.01',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+                }
+            });
+
+            if (!response.ok) throw new Error(`Network edge responded with code: ${response.status}`);
+            
+            const cleanPayload = await response.json();
+            const etfArray = cleanPayload.data || cleanPayload;
+
+            if (!Array.isArray(etfArray)) {
+                throw new Error("Payload did not compile into an extractable array.");
+            }
+
+            localStorage.setItem(CACHE_KEY, JSON.stringify(etfArray));
+            localStorage.setItem(CACHE_TIME_KEY, new Date().getTime().toString());
+
+            badge.innerText = "FETCHED FRESH DATA";
+            badge.className = "status-badge status-fresh";
+            timestampText.innerText = `Data Synced: ${new Date().toLocaleTimeString()}`;
+
+            renderUI(etfArray);
+        } catch (error) {
+            console.error("Pipeline failure:", error);
+            badge.innerText = "CONNECTION BLOCKED";
+            badge.className = "status-badge status-error";
+            timestampText.innerText = "Proxy session expired. Please verify authorization.";
+            
+            if (cachedData) {
+                renderUI(JSON.parse(cachedData));
+            } else {
+                document.getElementById('table-body').innerHTML = `
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: #9b2c2c; padding: 30px;">
+                            <strong>Data Pipeline Unreachable</strong><br>
+                            Click below to authorize the proxy container if this is your first local load session:<br>
+                            <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank" class="btn" style="display:inline-block; margin-top:15px; text-decoration:none;">
+                                Click Here to Unblock Demo Proxy Access
+                            </a>
+                        </td>
+                    </tr>`;
+            }
+        } finally {
+            btn.disabled = false;
+        }
+    }
+
+    function renderUI(etfArray) {
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = "";
+
+        etfArray.forEach(item => {
+            const row = document.createElement('tr');
+            
+            // 1. Core String Identifiers
+            const symbol = item.symbol || 'N/A';
+            const underlying = item.assets || item.underlying || '—';
+            
+            // 2. Numeric Extraction with exact field parsing schema fallback mapping rules
+            const ltpNum = parseFloat(item.ltp || item.lastPrice || 0);
+            const changeNum = parseFloat(item.pChange || item.perChange || 0);
+            const volNum = parseInt(item.volume || item.totalTradedVolume || item.qty || 0);
+            const high52Num = parseFloat(item.high52 || item.yearHigh || item.high52WH || 0);
+
+            // 3. Mathematical Execution Profile: Calculate % Change from 52 Week High
+            let distFromHighPct = 0;
+            if (high52Num > 0) {
+                distFromHighPct = ((ltpNum - high52Num) / high52Num) * 100;
+            }
+
+            // 4. Interface Formatting Applied
+            const ltpFormatted = ltpNum.toFixed(2);
+            const changeClass = changeNum >= 0 ? 'positive' : 'negative';
+            const changeSign = changeNum >= 0 ? '+' : '';
+            const changeFormatted = changeNum.toFixed(2);
+            
+            const volumeFormatted = volNum.toLocaleString('en-IN');
+            const high52Formatted = high52Num > 0 ? `₹${high52Num.toFixed(2)}` : '—';
+            
+            const highDistClass = distFromHighPct >= 0 ? 'positive' : 'negative';
+            const highDistSign = distFromHighPct > 0 ? '+' : '';
+            const highDistFormatted = high52Num > 0 ? `${highDistSign}${distFromHighPct.toFixed(2)}%` : '—';
+
+            row.innerHTML = `
+                <td><strong>${symbol}</strong></td>
+                <td><span class="text-muted">${underlying}</span></td>
+                <td>₹${ltpFormatted}</td>
+                <td class="${changeClass}">${changeSign}${changeFormatted}%</td>
+                <td>${volumeFormatted}</td>
+                <td>${high52Formatted}</td>
+                <td class="${highDistClass}">${highDistFormatted}</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    window.onload = () => fetchLiveETFData();
+</script>
+</body>
+</html>
