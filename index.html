@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NSE ETF Professional Dashboard</title>
+    <title>NSE ETF UI Dashboard</title>
     <style>
         body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: #f8f9fa; color: #212529; margin: 30px; }
         .container { max-width: 1200px; margin: auto; }
@@ -31,8 +31,8 @@
 <div class="container">
     <div class="header">
         <div>
-            <h1 style="margin: 0 0 5px 0; font-size: 1.75rem;">NSE ETF Live Matrix</h1>
-            <div id="timestamp-text" class="text-muted">Awaiting network baseline execution...</div>
+            <h1 style="margin: 0 0 5px 0; font-size: 1.75rem;">NSE ETF UI Tracker</h1>
+            <div id="timestamp-text" class="text-muted">Awaiting layout initialization...</div>
         </div>
         <div class="controls">
             <button id="refresh-btn" class="btn" onclick="fetchLiveETFData(true)">Manual Live Refresh</button>
@@ -45,25 +45,24 @@
         <thead>
             <tr>
                 <th>Symbol</th>
-                <th>Underlying Asset</th>
                 <th>LTP (₹)</th>
                 <th>Change (%)</th>
                 <th>Volume</th>
                 <th>52W High (₹)</th>
-                <th>% From 52W High</th>
+                <th>From 52W High (%)</th>
             </tr>
         </thead>
         <tbody id="table-body">
             <tr>
-                <td colspan="7" style="text-align: center; color: #718096;">Ready to process proxy tunnel handshake...</td>
+                <td colspan="6" style="text-align: center; color: #718096;">Ready to map JSON matrix schema to viewport.</td>
             </tr>
         </tbody>
     </table>
 </div>
 
 <script>
-    const CACHE_KEY = "nse_etf_live_ui_data_v2";
-    const CACHE_TIME_KEY = "nse_etf_live_ui_time_v2";
+    const CACHE_KEY = "nse_etf_live_ui_data";
+    const CACHE_TIME_KEY = "nse_etf_live_ui_time";
     const CACHE_TIMEOUT = 3 * 60 * 1000; 
 
     const PROXY_URL = "https://cors-anywhere.herokuapp.com/";
@@ -120,19 +119,20 @@
 
             renderUI(etfArray);
         } catch (error) {
-            console.error("Pipeline failure:", error);
-            badge.innerText = "CONNECTION BLOCKED";
+            console.error("Pipeline breakdown tracking log:", error);
+            badge.innerText = "CONNECTION OVERLOAD / BLOCKED";
             badge.className = "status-badge status-error";
-            timestampText.innerText = "Proxy session expired. Please verify authorization.";
+            timestampText.innerText = "Proxy instance rate-limited or target endpoint dropped connection.";
             
             if (cachedData) {
                 renderUI(JSON.parse(cachedData));
             } else {
                 document.getElementById('table-body').innerHTML = `
                     <tr>
-                        <td colspan="7" style="text-align: center; color: #9b2c2c; padding: 30px;">
+                        <td colspan="6" style="text-align: center; color: #9b2c2c; padding: 30px;">
                             <strong>Data Pipeline Unreachable</strong><br>
-                            Click below to authorize the proxy container if this is your first local load session:<br>
+                            To securely route requests live directly from your local file system or GitHub Pages, 
+                            please initialize the proxy session endpoint manually.<br>
                             <a href="https://cors-anywhere.herokuapp.com/corsdemo" target="_blank" class="btn" style="display:inline-block; margin-top:15px; text-decoration:none;">
                                 Click Here to Unblock Demo Proxy Access
                             </a>
@@ -151,43 +151,38 @@
         etfArray.forEach(item => {
             const row = document.createElement('tr');
             
-            // 1. Core String Identifiers
+            // Core Explicit Schema Field Mapping
             const symbol = item.symbol || 'N/A';
-            const underlying = item.assets || item.underlying || '—';
             
-            // 2. Numeric Extraction with exact field parsing schema fallback mapping rules
-            const ltpNum = parseFloat(item.ltp || item.lastPrice || 0);
-            const changeNum = parseFloat(item.pChange || item.perChange || 0);
-            const volNum = parseInt(item.volume || item.totalTradedVolume || item.qty || 0);
-            const high52Num = parseFloat(item.high52 || item.yearHigh || item.high52WH || 0);
-
-            // 3. Mathematical Execution Profile: Calculate % Change from 52 Week High
-            let distFromHighPct = 0;
-            if (high52Num > 0) {
-                distFromHighPct = ((ltpNum - high52Num) / high52Num) * 100;
+            // Using explicit fields discovered in raw JSON
+            const ltp = item.ltP ? parseFloat(item.ltP) : 0;
+            const changePct = item.per ? parseFloat(item.per) : 0;
+            const wkhHigh = item.wkhi ? parseFloat(item.wkhi) : 0;
+            
+            // Volume parsing metrics (checks fallback fields if necessary)
+            const rawVolume = item.volume || item.totalTradedVolume || item.qty || 0;
+            const volume = parseInt(rawVolume).toLocaleString('en-IN');
+            
+            // Calculation: Percent variance down from 52 Week High anchor limit
+            let fromWkhHighPct = 0;
+            if (wkhHigh > 0) {
+                fromWkhHighPct = ((ltp - wkhHigh) / wkhHigh) * 100;
             }
 
-            // 4. Interface Formatting Applied
-            const ltpFormatted = ltpNum.toFixed(2);
-            const changeClass = changeNum >= 0 ? 'positive' : 'negative';
-            const changeSign = changeNum >= 0 ? '+' : '';
-            const changeFormatted = changeNum.toFixed(2);
+            // UI Decoration Style parameters
+            const changeClass = changePct >= 0 ? 'positive' : 'negative';
+            const changeSign = changePct >= 0 ? '+' : '';
             
-            const volumeFormatted = volNum.toLocaleString('en-IN');
-            const high52Formatted = high52Num > 0 ? `₹${high52Num.toFixed(2)}` : '—';
-            
-            const highDistClass = distFromHighPct >= 0 ? 'positive' : 'negative';
-            const highDistSign = distFromHighPct > 0 ? '+' : '';
-            const highDistFormatted = high52Num > 0 ? `${highDistSign}${distFromHighPct.toFixed(2)}%` : '—';
+            const wkhClass = fromWkhHighPct >= 0 ? 'positive' : 'negative';
+            const wkhSign = fromWkhHighPct >= 0 ? '+' : '';
 
             row.innerHTML = `
                 <td><strong>${symbol}</strong></td>
-                <td><span class="text-muted">${underlying}</span></td>
-                <td>₹${ltpFormatted}</td>
-                <td class="${changeClass}">${changeSign}${changeFormatted}%</td>
-                <td>${volumeFormatted}</td>
-                <td>${high52Formatted}</td>
-                <td class="${highDistClass}">${highDistFormatted}</td>
+                <td>₹${ltp.toFixed(2)}</td>
+                <td class="${changeClass}">${changeSign}${changePct.toFixed(2)}%</td>
+                <td>${volume}</td>
+                <td>₹${wkhHigh.toFixed(2)}</td>
+                <td class="${wkhClass}">${wkhSign}${fromWkhHighPct.toFixed(2)}%</td>
             `;
             tbody.appendChild(row);
         });
