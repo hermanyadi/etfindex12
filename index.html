@@ -17,6 +17,7 @@
             --pos-green: #0f766e;
             --neg-red: #be123c;
             --badge-bg: #e2e8f0;
+            --accent-orange: #ea580c;
         }
 
         body { 
@@ -85,6 +86,10 @@
         .btn-outline { background-color: var(--bg-card); color: var(--primary); border: 1px solid var(--border-color); }
         .btn-outline:hover { background-color: var(--row-hover); border-color: var(--primary); }
         
+        /* Specialized Proxy Authorization Highlight Button */
+        .btn-proxy-auth { background-color: transparent; color: var(--accent-orange); border: 1px solid var(--accent-orange); font-weight: 600; }
+        .btn-proxy-auth:hover { background-color: #fff7ed; background-image: none; }
+
         /* Modern Horizontal Checkbox Container Row Layout */
         .checkbox-container-row {
             display: flex; flex-wrap: wrap; gap: 12px; background: var(--bg-card); 
@@ -137,6 +142,8 @@
                 <span id="count-decline" class="count-red">Declines: 0</span>
             </div>
             <span id="status-badge" class="status-badge status-loading">Checking Cache...</span>
+            
+            <button class="btn btn-proxy-auth" onclick="openProxyAuthGateway()">Authorize Proxy</button>
             <button id="refresh-btn" class="btn" onclick="triggerActiveWorkspaceSync(true)">Live Refresh</button>
         </div>
     </div>
@@ -213,6 +220,11 @@
     
     let etfMemoryState = { data: [], sortKey: 'volume', sortOrder: 'desc' };
     let indicesMemoryState = { data: [], sortKey: 'percentChange', sortOrder: 'desc' };
+
+    // Pops up small configuration interface frame cleanly over viewport
+    function openProxyAuthGateway() {
+        window.open(`${PROXY_URL}corsdemo`, 'ProxyAuth', 'width=600,height=500,top=150,left=300,resizable=yes');
+    }
 
     function switchActiveView(targetWorkspace) {
         activeWorkspace = targetWorkspace;
@@ -303,7 +315,7 @@
             console.error(error);
             badge.innerText = "Tunnel Error";
             badge.className = "status-badge status-error";
-            timestampText.innerText = "Gateway proxy dropped handshake execution cycle profile.";
+            timestampText.innerText = "Click 'Authorize Proxy' to initialize connection rules.";
             if (cachedData) {
                 if (activeWorkspace === 'etf') {
                     etfMemoryState.data = JSON.parse(cachedData); renderEtfWorkspace();
@@ -346,10 +358,9 @@
         document.querySelectorAll('.parent-row').forEach(row => shouldExpand ? row.classList.add('expanded') : row.classList.remove('expanded'));
     }
 
-    // Checkbox State Allocation Routine Block
     function initializeCheckboxFiltersOnce() {
         const container = document.getElementById('indices-checkbox-filters');
-        if (container.children.length > 0) return; // Maintain checking states across window ticks
+        if (container.children.length > 0) return;
 
         const keysSet = new Set();
         indicesMemoryState.data.forEach(item => {
@@ -365,7 +376,6 @@
             checkbox.className = "chk-input indices-filter-checkbox";
             checkbox.value = keyName;
             
-            // Core Exception Processing Constraint: Default all to true except FIXED INCOME INDICES
             if (keyName.toUpperCase() === "FIXED INCOME INDICES") {
                 checkbox.checked = false;
             } else {
@@ -481,7 +491,6 @@
 
         if (!indicesMemoryState.data || indicesMemoryState.data.length === 0) return;
 
-        // Collect all active checked values from checkboxes
         const checkedKeys = Array.from(document.querySelectorAll('.indices-filter-checkbox:checked')).map(cb => cb.value);
 
         let elementsList = indicesMemoryState.data.map(item => {
@@ -495,10 +504,8 @@
             return { index: indexTitle, key: keyField, last, percentChange, yearHigh, from52wPct };
         });
 
-        // Filter based on checkbox selection mapping array values
         elementsList = elementsList.filter(item => checkedKeys.includes(item.key));
 
-        // Compute Live Green Advance and Red Decline Metrics Profile Counters
         let advances = 0;
         let declines = 0;
         elementsList.forEach(item => {
@@ -506,11 +513,9 @@
             else declines++;
         });
 
-        // Push values to header metrics elements
         document.getElementById('count-advance').innerText = `Advances: ${advances}`;
         document.getElementById('count-decline').innerText = `Declines: ${declines}`;
 
-        // Perform Layout Sorts
         elementsList.sort((a, b) => {
             let valA = a[indicesMemoryState.sortKey];
             let valB = b[indicesMemoryState.sortKey];
