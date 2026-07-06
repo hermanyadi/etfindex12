@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NSE ETF Premium Workspace</title>
+    <title>NSE Market Tracker Workspace</title>
     <style>
         :root {
             --bg-main: #f1f5f9;
@@ -14,8 +14,8 @@
             --primary-hover: #0f172a;
             --border-color: #cbd5e1;
             --row-hover: #f8fafc;
-            --pos-green: #0f766e; /* Deep emerald corporate green */
-            --neg-red: #be123c;   /* Refined crimson wine red */
+            --pos-green: #0f766e;
+            --neg-red: #be123c;
             --badge-bg: #e2e8f0;
         }
 
@@ -24,7 +24,7 @@
             background-color: var(--bg-main); 
             color: var(--text-main); 
             margin: 0;
-            padding: 12px 20px; /* Minimal header padding constraint */
+            padding: 12px 20px;
             -webkit-font-smoothing: antialiased;
         }
         
@@ -35,56 +35,75 @@
             display: flex; 
             justify-content: space-between; 
             align-items: center; 
-            padding: 4px 0 10px 0;
-            margin-bottom: 8px;
-            border-bottom: 1px solid var(--border-color);
+            padding: 4px 0 8px 0;
+            margin-bottom: 4px;
         }
         
         .title-area { display: flex; align-items: baseline; gap: 14px; }
         h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.3px; color: var(--primary-hover); margin: 0; }
         .text-muted { color: var(--text-muted); font-size: 0.8rem; font-weight: 400; }
         
-        .controls { display: flex; align-items: center; gap: 10px; }
-        .btn-group { display: flex; gap: 4px; }
+        .controls { display: flex; align-items: center; gap: 12px; }
         
-        /* Modern Minimalist Buttons */
-        .btn { 
-            background-color: var(--primary); 
-            color: white; 
-            padding: 5px 12px; 
-            border: 1px solid transparent;
-            border-radius: 4px; 
-            cursor: pointer; 
-            font-weight: 500; 
-            font-size: 0.8rem; 
-            transition: all 0.15s ease;
-        }
-        .btn:hover { background-color: var(--primary-hover); }
-        .btn-outline { background-color: var(--bg-card); color: var(--primary); border: 1px solid var(--border-color); }
-        .btn-outline:hover { background-color: var(--row-hover); border-color: var(--primary); }
-        .btn:disabled { background-color: #cbd5e1; color: #94a3b8; cursor: not-allowed; }
-        
+        /* Market Breadth Analytics Counters */
+        .market-counters { display: flex; gap: 8px; font-size: 0.8rem; font-weight: 600; }
+        .count-green { background: #ccfbf1; color: #115e59; padding: 3px 8px; border-radius: 4px; border: 1px solid #99f6e4; }
+        .count-red { background: #ffe4e6; color: #9f1239; padding: 3px 8px; border-radius: 4px; border: 1px solid #fecdd3; }
+
         .status-badge { font-size: 0.725rem; font-weight: 600; padding: 3px 8px; border-radius: 4px; text-transform: uppercase; letter-spacing: 0.2px; }
         .status-cache { background: #fee2e2; color: #991b1b; border: 1px solid #fca5a5; }
         .status-fresh { background: #ccfbf1; color: #115e59; border: 1px solid #99f6e4; }
         .status-loading { background: var(--badge-bg); color: var(--text-muted); }
         .status-error { background: #ffe4e6; color: #9f1239; }
         
-        /* Premium Data Matrix Views */
+        /* Redesigned Unified Ribbon Line Row */
+        .navigation-ribbon {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 2px solid var(--border-color);
+            padding-bottom: 4px;
+            margin-bottom: 12px;
+        }
+
+        .workspace-tabs { display: flex; gap: 2px; }
+        .tab-btn { 
+            background: none; border: none; padding: 6px 18px; font-weight: 700; font-size: 0.85rem; 
+            color: var(--text-muted); cursor: pointer; border-radius: 4px 4px 0 0; position: relative; transition: all 0.15s ease;
+        }
+        .tab-btn:hover { color: var(--primary-hover); background: #e2e8f0; }
+        .tab-btn.active-tab { color: #000; background: var(--bg-card); box-shadow: 0 -2px 4px rgba(0,0,0,0.02); }
+        .tab-btn.active-tab::after { content: ""; position: absolute; bottom: -6px; left: 0; right: 0; height: 4px; background: var(--primary); }
+        
+        /* Action Framework Right Elements */
+        .ribbon-actions { display: flex; align-items: center; gap: 6px; }
+        .btn { 
+            background-color: var(--primary); color: white; padding: 5px 12px; border: 1px solid transparent;
+            border-radius: 4px; cursor: pointer; font-weight: 500; font-size: 0.8rem; transition: all 0.15s ease;
+        }
+        .btn:hover { background-color: var(--primary-hover); }
+        .btn-outline { background-color: var(--bg-card); color: var(--primary); border: 1px solid var(--border-color); }
+        .btn-outline:hover { background-color: var(--row-hover); border-color: var(--primary); }
+        
+        /* Modern Horizontal Checkbox Container Row Layout */
+        .checkbox-container-row {
+            display: flex; flex-wrap: wrap; gap: 12px; background: var(--bg-card); 
+            padding: 10px 14px; border-radius: 6px; border: 1px solid var(--border-color); margin-bottom: 12px;
+        }
+        .chk-label { display: flex; align-items: center; gap: 6px; font-size: 0.775rem; font-weight: 600; color: #475569; cursor: pointer; text-transform: uppercase; }
+        .chk-input { cursor: pointer; accent-color: var(--primary); width: 14px; height: 14px; }
+
+        .view-section { display: none; }
+        .view-section.active-section { display: block; }
+
+        /* Premium Data Matrix Container Layouts */
         .table-container { background: var(--bg-card); border-radius: 6px; border: 1px solid var(--border-color); overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
         table { width: 100%; border-collapse: collapse; text-align: left; }
         th, td { padding: 10px 14px; border-bottom: 1px solid #e2e8f0; font-size: 0.85rem; }
         
         th { 
-            background-color: #f1f5f9; 
-            font-weight: 600; 
-            color: #475569; 
-            text-transform: uppercase; 
-            font-size: 0.7rem; 
-            letter-spacing: 0.5px; 
-            cursor: pointer; 
-            user-select: none;
-            border-bottom: 2px solid var(--border-color);
+            background-color: #f1f5f9; font-weight: 600; color: #475569; text-transform: uppercase; 
+            font-size: 0.7rem; letter-spacing: 0.5px; cursor: pointer; user-select: none; border-bottom: 2px solid var(--border-color);
         }
         th:hover { color: var(--primary-hover); background-color: #e2e8f0; }
         th::after { content: " ↕"; font-size: 0.7rem; color: #94a3b8; opacity: 0.5; margin-left: 2px; }
@@ -109,80 +128,148 @@
 <div class="container">
     <div class="header">
         <div class="title-area">
-            <h1>NSE ETF Dashboard</h1>
-            <div id="timestamp-text" class="text-muted">Loading workspace context...</div>
-            <div class="btn-group">
-                <button id="expand-all-btn" class="btn btn-outline" onclick="toggleAllGroups(true)">Expand All</button>
-                <button id="collapse-all-btn" class="btn btn-outline" onclick="toggleAllGroups(false)">Collapse All</button>
-            </div>
+            <h1>Market Dashboard</h1>
+            <div id="timestamp-text" class="text-muted">Loading environment...</div>
         </div>
         <div class="controls">
-            <span id="status-badge" class="status-badge status-loading">Checking...</span>
-            <button id="refresh-btn" class="btn" onclick="fetchLiveETFData(true)">Live Refresh</button>
+            <div id="market-breadth-counters" class="market-counters" style="display: none;">
+                <span id="count-advance" class="count-green">Advances: 0</span>
+                <span id="count-decline" class="count-red">Declines: 0</span>
+            </div>
+            <span id="status-badge" class="status-badge status-loading">Checking Cache...</span>
+            <button id="refresh-btn" class="btn" onclick="triggerActiveWorkspaceSync(true)">Live Refresh</button>
         </div>
     </div>
 
-    <div class="table-container">
-        <table>
-            <thead>
-                <tr>
-                    <th id="th-symbol" onclick="handleHeaderSort('symbol')">Symbol</th>
-                    <th id="th-assets" onclick="handleHeaderSort('assets')">Asset / Underlying</th>
-                    <th id="th-ltp" onclick="handleHeaderSort('ltp')">LTP (₹)</th>
-                    <th id="th-changePct" onclick="handleHeaderSort('changePct')">Change (%)</th>
-                    <th id="th-volume" onclick="handleHeaderSort('volume')">Volume</th>
-                    <th id="th-wkhHigh" onclick="handleHeaderSort('wkhHigh')">52W High (₹)</th>
-                    <th id="th-fromWkhHighPct" onclick="handleHeaderSort('fromWkhHighPct')">From 52W High</th>
-                </tr>
-            </thead>
-            <tbody id="table-body">
-                <tr>
-                    <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">Initial connection profile processing execution tracking sequence loop...</td>
-                </tr>
-            </tbody>
-        </table>
+    <div class="navigation-ribbon">
+        <div class="workspace-tabs">
+            <button id="tab-etf" class="tab-btn active-tab" onclick="switchActiveView('etf')">ETF</button>
+            <button id="tab-indices" class="tab-btn" onclick="switchActiveView('indices')">Indices</button>
+        </div>
+        
+        <div class="ribbon-actions">
+            <div id="actions-etf" class="ribbon-context-block">
+                <button class="btn btn-outline" onclick="toggleAllGroups(true)">Expand All</button>
+                <button class="btn btn-outline" onclick="toggleAllGroups(false)">Collapse All</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="section-etf" class="view-section active-section">
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th id="th-etf-symbol" onclick="handleWorkspaceSorting('symbol', 'etf')">Symbol</th>
+                        <th id="th-etf-assets" onclick="handleWorkspaceSorting('assets', 'etf')">Asset / Underlying</th>
+                        <th id="th-etf-ltp" onclick="handleWorkspaceSorting('ltp', 'etf')">LTP (₹)</th>
+                        <th id="th-etf-changePct" onclick="handleWorkspaceSorting('changePct', 'etf')">Change (%)</th>
+                        <th id="th-etf-volume" onclick="handleWorkspaceSorting('volume', 'etf')">Volume</th>
+                        <th id="th-etf-wkhHigh" onclick="handleWorkspaceSorting('wkhHigh', 'etf')">52W High (₹)</th>
+                        <th id="th-etf-fromWkhHighPct" onclick="handleWorkspaceSorting('fromWkhHighPct', 'etf')">From 52W High</th>
+                    </tr>
+                </thead>
+                <tbody id="etf-table-body">
+                    <tr>
+                        <td colspan="7" style="text-align: center; color: var(--text-muted); padding: 24px;">Awaiting entry data stream...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div id="section-indices" class="view-section">
+        <div id="indices-checkbox-filters" class="checkbox-container-row">
+            </div>
+
+        <div class="table-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th id="th-ind-index" onclick="handleWorkspaceSorting('index', 'indices')">Index Title</th>
+                        <th id="th-ind-last" onclick="handleWorkspaceSorting('last', 'indices')">Last Price</th>
+                        <th id="th-ind-percentChange" onclick="handleWorkspaceSorting('percentChange', 'indices')">Change (%)</th>
+                        <th id="th-ind-yearHigh" onclick="handleWorkspaceSorting('yearHigh', 'indices')">52W High</th>
+                        <th id="th-ind-from52wPct" onclick="handleWorkspaceSorting('from52wPct', 'indices')">From 52W High</th>
+                    </tr>
+                </thead>
+                <tbody id="indices-table-body">
+                    <tr>
+                        <td colspan="5" style="text-align: center; color: var(--text-muted); padding: 24px;">Awaiting indices synchronization metrics...</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
     </div>
 </div>
 
 <script>
-    const CACHE_KEY = "nse_etf_live_ui_data";
-    const CACHE_TIME_KEY = "nse_etf_live_ui_time";
-    const CACHE_TIMEOUT = 3 * 60 * 1000; 
-
     const PROXY_URL = "https://cors-anywhere.herokuapp.com/";
-    const TARGET_API = "https://www.nseindia.com/api/etf";
+    const ETF_API = "https://www.nseindia.com/api/etf";
+    const INDICES_API = "https://www.nseindia.com/api/allIndices";
+    const CACHE_TIMEOUT = 3 * 60 * 1000;
 
-    let globalEtfData = []; 
-    let activeSortKey = 'volume'; 
-    let activeSortOrder = 'desc';
+    let activeWorkspace = 'etf';
+    
+    let etfMemoryState = { data: [], sortKey: 'volume', sortOrder: 'desc' };
+    let indicesMemoryState = { data: [], sortKey: 'percentChange', sortOrder: 'desc' };
 
-    async function fetchLiveETFData(forceRefresh = false) {
-        const cachedData = localStorage.getItem(CACHE_KEY);
-        const cachedTime = localStorage.getItem(CACHE_TIME_KEY);
+    function switchActiveView(targetWorkspace) {
+        activeWorkspace = targetWorkspace;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active-tab'));
+        document.querySelectorAll('.view-section').forEach(sec => sec.classList.remove('active-section'));
+        
+        document.getElementById(`tab-${targetWorkspace}`).classList.add('active-tab');
+        document.getElementById(`section-${targetWorkspace}`).classList.add('active-section');
+        
+        if (targetWorkspace === 'etf') {
+            document.getElementById('actions-etf').style.display = 'block';
+            document.getElementById('market-breadth-counters').style.display = 'none';
+        } else {
+            document.getElementById('actions-etf').style.display = 'none';
+            document.getElementById('market-breadth-counters').style.display = 'flex';
+        }
+        
+        triggerActiveWorkspaceSync(false);
+    }
+
+    async function triggerActiveWorkspaceSync(force = false) {
+        const targetKey = `nse_${activeWorkspace}_ui_data`;
+        const timeKey = `nse_${activeWorkspace}_ui_time`;
+        const targetApiUrl = activeWorkspace === 'etf' ? ETF_API : INDICES_API;
+
+        const cachedData = localStorage.getItem(targetKey);
+        const cachedTime = localStorage.getItem(timeKey);
         const now = new Date().getTime();
 
         const badge = document.getElementById('status-badge');
         const timestampText = document.getElementById('timestamp-text');
         const btn = document.getElementById('refresh-btn');
 
-        if (!forceRefresh && cachedData && cachedTime && (now - cachedTime < CACHE_TIMEOUT)) {
+        if (!force && cachedData && cachedTime && (now - cachedTime < CACHE_TIMEOUT)) {
             badge.innerText = "Cached Snapshot";
             badge.className = "status-badge status-cache";
             const ageInSeconds = Math.round((now - cachedTime) / 1000);
-            timestampText.innerText = `Local snapshot compiled (${ageInSeconds}s ago)`;
+            timestampText.innerText = `${activeWorkspace.toUpperCase()} context read from cache (${ageInSeconds}s ago)`;
             
-            globalEtfData = JSON.parse(cachedData);
-            renderUI();
+            if (activeWorkspace === 'etf') {
+                etfMemoryState.data = JSON.parse(cachedData);
+                renderEtfWorkspace();
+            } else {
+                indicesMemoryState.data = JSON.parse(cachedData);
+                initializeCheckboxFiltersOnce();
+                renderIndicesWorkspace();
+            }
             return;
         }
 
         badge.innerText = "Syncing...";
         badge.className = "status-badge status-loading";
-        timestampText.innerText = "Tunneling API context profiles via proxy core...";
+        timestampText.innerText = `Fetching fresh ${activeWorkspace.toUpperCase()} matrix from edge framework...`;
         btn.disabled = true;
 
         try {
-            const response = await fetch(`${PROXY_URL}${TARGET_API}?t=${new Date().getTime()}`, {
+            const response = await fetch(`${PROXY_URL}${targetApiUrl}?t=${new Date().getTime()}`, {
                 method: 'GET',
                 headers: {
                     'X-Requested-With': 'XMLHttpRequest',
@@ -193,31 +280,58 @@
 
             if (!response.ok) throw new Error(`Status: ${response.status}`);
             const cleanPayload = await response.json();
-            const etfArray = cleanPayload.data || cleanPayload;
+            
+            const dataArray = cleanPayload.data || cleanPayload;
+            if (!Array.isArray(dataArray)) throw new Error("Invalid matrix payload array.");
 
-            if (!Array.isArray(etfArray)) throw new Error("Payload breakdown validation anomaly.");
-
-            localStorage.setItem(CACHE_KEY, JSON.stringify(etfArray));
-            localStorage.setItem(CACHE_TIME_KEY, new Date().getTime().toString());
+            localStorage.setItem(targetKey, JSON.stringify(dataArray));
+            localStorage.setItem(timeKey, now.toString());
 
             badge.innerText = "Live Active";
             badge.className = "status-badge status-fresh";
-            timestampText.innerText = `Data Sync: ${new Date().toLocaleTimeString()}`;
+            timestampText.innerText = `${activeWorkspace.toUpperCase()} Updated: ${new Date().toLocaleTimeString()}`;
 
-            globalEtfData = etfArray;
-            renderUI();
+            if (activeWorkspace === 'etf') {
+                etfMemoryState.data = dataArray;
+                renderEtfWorkspace();
+            } else {
+                indicesMemoryState.data = dataArray;
+                initializeCheckboxFiltersOnce();
+                renderIndicesWorkspace();
+            }
         } catch (error) {
             console.error(error);
-            badge.innerText = "Tunnel Failed";
+            badge.innerText = "Tunnel Error";
             badge.className = "status-badge status-error";
-            timestampText.innerText = "Connection drop from target edge gateway routing rules.";
+            timestampText.innerText = "Gateway proxy dropped handshake execution cycle profile.";
             if (cachedData) {
-                globalEtfData = JSON.parse(cachedData);
-                renderUI();
+                if (activeWorkspace === 'etf') {
+                    etfMemoryState.data = JSON.parse(cachedData); renderEtfWorkspace();
+                } else {
+                    indicesMemoryState.data = JSON.parse(cachedData); initializeCheckboxFiltersOnce(); renderIndicesWorkspace();
+                }
             }
         } finally {
             btn.disabled = false;
         }
+    }
+
+    function handleWorkspaceSorting(key, context) {
+        let state = context === 'etf' ? etfMemoryState : indicesMemoryState;
+        if (state.sortKey === key) {
+            state.sortOrder = state.sortOrder === 'asc' ? 'desc' : 'asc';
+        } else {
+            state.sortKey = key;
+            state.sortOrder = (key === 'symbol' || key === 'assets' || key === 'index') ? 'asc' : 'desc';
+        }
+        context === 'etf' ? renderEtfWorkspace() : renderIndicesWorkspace();
+    }
+
+    function updateSortHeaderStyles(headersArray, prefix, activeKey, activeOrder) {
+        headersArray.forEach(hKey => {
+            const el = document.getElementById(`${prefix}-${hKey}`);
+            if (el) el.className = hKey === activeKey ? (activeOrder === 'asc' ? 'sort-asc' : 'sort-desc') : '';
+        });
     }
 
     function toggleGroup(groupId, parentElement) {
@@ -227,26 +341,42 @@
         parentElement.classList.toggle('expanded');
     }
 
-    // Expand All / Collapse All Routine Execution Array Mapping Loop
     function toggleAllGroups(shouldExpand) {
         document.querySelectorAll('.child-row').forEach(row => row.style.display = shouldExpand ? 'table-row' : 'none');
         document.querySelectorAll('.parent-row').forEach(row => shouldExpand ? row.classList.add('expanded') : row.classList.remove('expanded'));
     }
 
-    function handleHeaderSort(key) {
-        if (activeSortKey === key) {
-            activeSortOrder = activeSortOrder === 'asc' ? 'desc' : 'asc';
-        } else {
-            activeSortKey = key;
-            activeSortOrder = (key === 'symbol' || key === 'assets') ? 'asc' : 'desc';
-        }
-        renderUI();
-    }
+    // Checkbox State Allocation Routine Block
+    function initializeCheckboxFiltersOnce() {
+        const container = document.getElementById('indices-checkbox-filters');
+        if (container.children.length > 0) return; // Maintain checking states across window ticks
 
-    function updateSortHeaderStyles() {
-        ['symbol', 'assets', 'ltp', 'changePct', 'volume', 'wkhHigh', 'fromWkhHighPct'].forEach(hKey => {
-            const el = document.getElementById(`th-${hKey}`);
-            if (el) el.className = hKey === activeSortKey ? (activeSortOrder === 'asc' ? 'sort-asc' : 'sort-desc') : '';
+        const keysSet = new Set();
+        indicesMemoryState.data.forEach(item => {
+            if (item.key) keysSet.add(item.key);
+        });
+
+        Array.from(keysSet).sort().forEach(keyName => {
+            const label = document.createElement('label');
+            label.className = "chk-label";
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = "checkbox";
+            checkbox.className = "chk-input indices-filter-checkbox";
+            checkbox.value = keyName;
+            
+            // Core Exception Processing Constraint: Default all to true except FIXED INCOME INDICES
+            if (keyName.toUpperCase() === "FIXED INCOME INDICES") {
+                checkbox.checked = false;
+            } else {
+                checkbox.checked = true;
+            }
+
+            checkbox.onchange = () => renderIndicesWorkspace();
+
+            label.appendChild(checkbox);
+            label.appendChild(document.createTextNode(keyName));
+            container.appendChild(label);
         });
     }
 
@@ -267,15 +397,13 @@
         return workingName.replace(suffixRegex, '').trim() || checkAssetUpper;
     }
 
-    function renderUI() {
-        const tbody = document.getElementById('table-body');
+    function renderEtfWorkspace() {
+        const tbody = document.getElementById('etf-table-body');
         tbody.innerHTML = "";
-        updateSortHeaderStyles();
-
-        if (!globalEtfData || globalEtfData.length === 0) return;
+        updateSortHeaderStyles(['symbol', 'assets', 'ltp', 'changePct', 'volume', 'wkhHigh', 'fromWkhHighPct'], 'th-etf', etfMemoryState.sortKey, etfMemoryState.sortOrder);
 
         const groupedAssets = {};
-        globalEtfData.forEach(item => {
+        etfMemoryState.data.forEach(item => {
             const rawAssetName = item.assets || 'Other/Unclassified';
             const symbol = item.symbol || 'N/A';
             const assignedGroupKey = cleanAndExtractGroupKey(rawAssetName, symbol);
@@ -296,21 +424,20 @@
         const finalGroupBlocks = [];
         for (const [groupKey, items] of Object.entries(groupedAssets)) {
             items.sort((a, b) => b.volume - a.volume);
-            finalGroupBlocks.push({ groupKey: groupKey, parent: items[0], children: items.slice(1) });
+            finalGroupBlocks.push({ parent: items[0], children: items.slice(1) });
         }
 
         finalGroupBlocks.sort((a, b) => {
-            let valA = a.parent[activeSortKey];
-            let valB = b.parent[activeSortKey];
-            return typeof valA === 'string' ? (activeSortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA)) : (activeSortOrder === 'asc' ? valA - valB : valB - valA);
+            let valA = a.parent[etfMemoryState.sortKey];
+            let valB = b.parent[etfMemoryState.sortKey];
+            return typeof valA === 'string' ? (etfMemoryState.sortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA)) : (etfMemoryState.sortOrder === 'asc' ? valA - valB : valB - valA);
         });
 
         let groupIndex = 0;
         finalGroupBlocks.forEach(block => {
             groupIndex++;
-            const highestVolumeItem = block.parent;
-            const substituteItems = block.children;
-            const hasChildren = substituteItems.length > 0;
+            const p = block.parent;
+            const hasChildren = block.children.length > 0;
 
             const pRow = document.createElement('tr');
             pRow.className = `parent-row`;
@@ -320,45 +447,95 @@
             }
 
             pRow.innerHTML = `
-                <td><span class="symbol-txt">${highestVolumeItem.symbol}</span></td>
-                <td>
-                    <span>${highestVolumeItem.assets}</span>
-                    ${hasChildren ? `<span class="badge-count">${substituteItems.length + 1} options</span>` : ''}
-                </td>
-                <td>₹${highestVolumeItem.ltp.toFixed(2)}</td>
-                <td class="${highestVolumeItem.changePct >= 0 ? 'positive' : 'negative'}">
-                    ${highestVolumeItem.changePct >= 0 ? '+' : ''}${highestVolumeItem.changePct.toFixed(2)}%
-                </td>
-                <td>${highestVolumeItem.volume.toLocaleString('en-IN')}</td>
-                <td>₹${highestVolumeItem.wkhHigh.toFixed(2)}</td>
-                <td class="${highestVolumeItem.fromWkhHighPct >= 0 ? 'positive' : 'negative'}">
-                    ${highestVolumeItem.fromWkhHighPct >= 0 ? '+' : ''}${highestVolumeItem.fromWkhHighPct.toFixed(2)}%
-                </td>
+                <td><span class="symbol-txt">${p.symbol}</span></td>
+                <td><span>${p.assets}</span> ${hasChildren ? `<span class="badge-count">${block.children.length + 1} options</span>` : ''}</td>
+                <td>₹${p.ltp.toFixed(2)}</td>
+                <td class="${p.changePct >= 0 ? 'positive' : 'negative'}">${p.changePct >= 0 ? '+' : ''}${p.changePct.toFixed(2)}%</td>
+                <td>${p.volume.toLocaleString('en-IN')}</td>
+                <td>₹${p.wkhHigh.toFixed(2)}</td>
+                <td class="${p.fromWkhHighPct >= 0 ? 'positive' : 'negative'}">${p.fromWkhHighPct >= 0 ? '+' : ''}${p.fromWkhHighPct.toFixed(2)}%</td>
             `;
             tbody.appendChild(pRow);
 
-            substituteItems.forEach(child => {
+            block.children.forEach(c => {
                 const cRow = document.createElement('tr');
                 cRow.className = `child-row child-of-${groupIndex}`;
                 cRow.innerHTML = `
-                    <td><span class="symbol-txt" style="padding-left:8px; opacity: 0.85;">${child.symbol}</span></td>
-                    <td><span class="text-muted">${child.assets}</span></td>
-                    <td>₹${child.ltp.toFixed(2)}</td>
-                    <td class="${child.changePct >= 0 ? 'positive' : 'negative'}">
-                        ${child.changePct >= 0 ? '+' : ''}${child.changePct.toFixed(2)}%
-                    </td>
-                    <td>${child.volume.toLocaleString('en-IN')}</td>
-                    <td>₹${child.wkhHigh.toFixed(2)}</td>
-                    <td class="${child.fromWkhHighPct >= 0 ? 'positive' : 'negative'}">
-                        ${child.fromWkhHighPct >= 0 ? '+' : ''}${child.fromWkhHighPct.toFixed(2)}%
-                    </td>
+                    <td><span class="symbol-txt" style="padding-left:8px; opacity:0.85;">${c.symbol}</span></td>
+                    <td><span class="text-muted">${c.assets}</span></td>
+                    <td>₹${c.ltp.toFixed(2)}</td>
+                    <td class="${c.changePct >= 0 ? 'positive' : 'negative'}">${c.changePct >= 0 ? '+' : ''}${c.changePct.toFixed(2)}%</td>
+                    <td>${c.volume.toLocaleString('en-IN')}</td>
+                    <td>₹${c.wkhHigh.toFixed(2)}</td>
+                    <td class="${c.fromWkhHighPct >= 0 ? 'positive' : 'negative'}">${c.fromWkhHighPct >= 0 ? '+' : ''}${c.fromWkhHighPct.toFixed(2)}%</td>
                 `;
                 tbody.appendChild(cRow);
             });
         });
     }
 
-    window.onload = () => fetchLiveETFData();
+    function renderIndicesWorkspace() {
+        const tbody = document.getElementById('indices-table-body');
+        tbody.innerHTML = "";
+        updateSortHeaderStyles(['index', 'last', 'percentChange', 'yearHigh', 'from52wPct'], 'th-ind', indicesMemoryState.sortKey, indicesMemoryState.sortOrder);
+
+        if (!indicesMemoryState.data || indicesMemoryState.data.length === 0) return;
+
+        // Collect all active checked values from checkboxes
+        const checkedKeys = Array.from(document.querySelectorAll('.indices-filter-checkbox:checked')).map(cb => cb.value);
+
+        let elementsList = indicesMemoryState.data.map(item => {
+            const indexTitle = item.index || 'N/A'; 
+            const keyField = item.key || '';
+            const last = item.last ? parseFloat(item.last) : 0;
+            const percentChange = item.percentChange ? parseFloat(item.percentChange) : 0;
+            const yearHigh = item.yearHigh ? parseFloat(item.yearHigh) : 0;
+            const from52wPct = yearHigh > 0 ? ((last - yearHigh) / yearHigh) * 100 : 0;
+
+            return { index: indexTitle, key: keyField, last, percentChange, yearHigh, from52wPct };
+        });
+
+        // Filter based on checkbox selection mapping array values
+        elementsList = elementsList.filter(item => checkedKeys.includes(item.key));
+
+        // Compute Live Green Advance and Red Decline Metrics Profile Counters
+        let advances = 0;
+        let declines = 0;
+        elementsList.forEach(item => {
+            if (item.percentChange >= 0) advances++;
+            else declines++;
+        });
+
+        // Push values to header metrics elements
+        document.getElementById('count-advance').innerText = `Advances: ${advances}`;
+        document.getElementById('count-decline').innerText = `Declines: ${declines}`;
+
+        // Perform Layout Sorts
+        elementsList.sort((a, b) => {
+            let valA = a[indicesMemoryState.sortKey];
+            let valB = b[indicesMemoryState.sortKey];
+            return typeof valA === 'string' ? (indicesMemoryState.sortOrder === 'asc' ? valA.localeCompare(valB) : valB.localeCompare(valA)) : (indicesMemoryState.sortOrder === 'asc' ? valA - valB : valB - valA);
+        });
+
+        if (elementsList.length === 0) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; padding: 24px; color: var(--text-muted);">No entries matched the checked key criteria profiles.</td></tr>`;
+            return;
+        }
+
+        elementsList.forEach(ind => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td><span class="symbol-txt">${ind.index}</span></td>
+                <td><strong>${ind.last.toLocaleString('en-IN', {minimumFractionDigits: 2, maximumFractionDigits: 2})}</strong></td>
+                <td class="${ind.percentChange >= 0 ? 'positive' : 'negative'}">${ind.percentChange >= 0 ? '+' : ''}${ind.percentChange.toFixed(2)}%</td>
+                <td>${ind.yearHigh.toLocaleString('en-IN')}</td>
+                <td class="${ind.from52wPct >= 0 ? 'positive' : 'negative'}">${ind.from52wPct >= 0 ? '+' : ''}${ind.from52wPct.toFixed(2)}%</td>
+            `;
+            tbody.appendChild(row);
+        });
+    }
+
+    window.onload = () => triggerActiveWorkspaceSync();
 </script>
 </body>
 </html>
